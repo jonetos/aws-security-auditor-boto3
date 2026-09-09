@@ -17,3 +17,4 @@ This tool scans all Security Groups in an AWS account and flags critical misconf
 ## Usage
 ```bash
 python3 auditor.py
+```
