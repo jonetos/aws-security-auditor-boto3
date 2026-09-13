@@ -1,0 +1,41 @@
+import boto3
+from botocore.exceptions import ClientError
+
+def audit_security_groups():
+    print("[*] Initiating Security Group Audit...\n")
+    
+    try:
+        aws_region = input("[*] Type your AWS region (e.g., us-east-1, eu-west-1): ")
+        ec2_client = boto3.client('ec2', region_name=aws_region)
+        
+        response = ec2_client.describe_security_groups()
+        
+        security_groups = response.get('SecurityGroups', [])
+        
+        issues_found = 0
+
+        for sg in security_groups:
+            sg_name = sg.get('GroupName', 'Unnamed Security Group')
+            
+            for permission in sg.get('IpPermissions', []):
+                
+                from_port = permission.get('FromPort', -1)
+                
+                to_port = permission.get('ToPort', -1)
+                
+                is_ssh_exposed = (from_port <= 22 <= to_port) or (from_port == -1)
+                
+                for ip_range in permission.get('IpRanges', []):
+                    cidr_ip = ip_range.get('CidrIp', 'Unknown CIDR')
+
+                    if is_ssh_exposed and cidr_ip == '0.0.0.0/0':
+                        print(f"[!] ALERT: The group '{sg_name}' has SSH open to the entire internet.")
+                        issues_found += 1
+
+        print(f"\n[+] Audit completed. Vulnerabilities found: {issues_found}")
+
+    except ClientError as e:
+        print(f"[X] AWS Error: {e}")
+
+if __name__ == "__main__":
+    audit_security_groups()
