@@ -24,12 +24,24 @@ def audit_security_groups():
                 to_port = permission.get('ToPort', -1)
                 
                 is_ssh_exposed = (from_port <= 22 <= to_port) or (from_port == -1)
-                
+                is_rdp_exposed = (from_port <= 3389 <= to_port) or (from_port == -1)
+                is_http_exposed = (from_port <= 80 <= to_port) or (from_port == -1)
+                is_db_exposed = (from_port <= 3306 <= to_port) or (from_port == -1)
+
                 for ip_range in permission.get('IpRanges', []):
                     cidr_ip = ip_range.get('CidrIp', 'Unknown CIDR')
 
                     if is_ssh_exposed and cidr_ip == '0.0.0.0/0':
                         print(f"[!] ALERT: The group '{sg_name}' has SSH open to the entire internet.")
+                        issues_found += 1
+                    else if is_rdp_exposed and cidr_ip == '0.0.0.0/0'
+                        print(f"[!] ALERT: The group '{sg_name}' has RDP open to the entire internet.")
+                        issues_found += 1
+                    else if is_http_exposed and cidr_ip == '0.0.0.0/0':
+                        print(f"[!] ALERT: The group '{sg_name}' has HTTP open to the entire internet.")
+                        issues_found += 1
+                    else if is_db_exposed and cidr_ip == '0.0.0.0/0':
+                        print(f"[!] ALERT: The group '{sg_name}' has DB access open to the entire internet.")
                         issues_found += 1
 
         print(f"\n[+] Audit completed. Vulnerabilities found: {issues_found}")
