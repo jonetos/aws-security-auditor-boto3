@@ -2,6 +2,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 def audit_security_groups():
+    vulnerabilities = []
     print("[*] Initiating Security Group Audit...\n")
     
     try:
@@ -13,7 +14,7 @@ def audit_security_groups():
         security_groups = response.get('SecurityGroups', [])
         
         issues_found = 0
-
+        
         for sg in security_groups:
             sg_name = sg.get('GroupName', 'Unnamed Security Group')
             
@@ -32,19 +33,36 @@ def audit_security_groups():
                     cidr_ip = ip_range.get('CidrIp', 'Unknown CIDR')
 
                     if is_ssh_exposed and cidr_ip == '0.0.0.0/0':
-                        print(f"[!] ALERT: The group '{sg_name}' has SSH open to the entire internet.")
+                        alert = f"[!] ALERT: The group '{sg_name}' has SSH open to the entire internet."
                         issues_found += 1
-                    else if is_rdp_exposed and cidr_ip == '0.0.0.0/0'
-                        print(f"[!] ALERT: The group '{sg_name}' has RDP open to the entire internet.")
+                        vulnerabilities.append(alert)
+                    if is_rdp_exposed and cidr_ip == '0.0.0.0/0':
+                        alert = f"[!] ALERT: The group '{sg_name}' has RDP open to the entire internet."
                         issues_found += 1
-                    else if is_http_exposed and cidr_ip == '0.0.0.0/0':
-                        print(f"[!] ALERT: The group '{sg_name}' has HTTP open to the entire internet.")
+                        vulnerabilities.append(alert)
+                    if is_http_exposed and cidr_ip == '0.0.0.0/0':
+                        alert = f"[!] ALERT: The group '{sg_name}' has HTTP open to the entire internet."
                         issues_found += 1
-                    else if is_db_exposed and cidr_ip == '0.0.0.0/0':
-                        print(f"[!] ALERT: The group '{sg_name}' has DB access open to the entire internet.")
+                        vulnerabilities.append(alert)
+                    if is_db_exposed and cidr_ip == '0.0.0.0/0':
+                        alert = f"[!] ALERT: The group '{sg_name}' has DB access open to the entire internet."
                         issues_found += 1
+                        vulnerabilities.append(alert)
 
-        print(f"\n[+] Audit completed. Vulnerabilities found: {issues_found}")
+        report_name = "auditor_report.txt"
+        with open(report_name, 'w') as report_file:
+            report_file.write("=== AWS SECURITY AUDIT REPORT ===\n\n")
+            report_file.write("Audited Service: AWS EC2 Security Groups\n")
+
+            if(len(vulnerabilities) == 0):
+                report_file.write("No vulnerabilities found.\n")
+
+            else:
+                report_file.write(f"Total vulnerabilities found: {issues_found}\n\n")
+                for vulnerability in vulnerabilities:
+                    report_file.write(vulnerability + "\n")
+
+        print(f"\n[*] Audit completed. Report saved to '{report_name}'.")        
 
     except ClientError as e:
         print(f"[X] AWS Error: {e}")
