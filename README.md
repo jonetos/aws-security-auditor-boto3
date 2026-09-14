@@ -7,7 +7,7 @@ This tool scans all Security Groups in an AWS account and flags critical misconf
 ## Features
 * **Automated Auditing:** Retrieves and parses Security Group ingress rules across the AWS account.
 * **Risk Detection:** Identifies rules allowing unrestricted access to management ports.
-* **Security First:** Built with principles derived from the CompTIA Security+ framework to ensure robust infrastructure baseline security.
+* **Security First:** Built with principles to ensure robust infrastructure baseline security.
 
 ## Prerequisites
 * Python 3.x
