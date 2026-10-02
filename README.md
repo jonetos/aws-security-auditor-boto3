@@ -12,7 +12,7 @@ This tool scans all Security Groups in an AWS account and flags critical misconf
 ## Prerequisites
 * Python 3.x
 * AWS CLI installed and configured (`aws configure` with IAM credentials)
-* `boto3` library (`pip install boto3`)
+* `boto3` library
 
 ## Usage
 ```bash
