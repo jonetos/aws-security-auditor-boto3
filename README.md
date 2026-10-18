@@ -1,20 +1,37 @@
-# AWS Security Group Auditor 
+# AWS Security Group Auditor
 
-A Python automation script leveraging the **Boto3 SDK** to audit AWS environments and detect overly permissive firewall rules. 
+Python/Boto3 script that audits EC2 Security Groups in a single AWS region
+and reports ingress rules exposing common ports to the whole internet.
 
-This tool scans all Security Groups in an AWS account and flags critical misconfigurations, such as SSH (Port 22) or RDP (Port 3389) being open to the public internet (`0.0.0.0/0`), aligning with cloud security best practices.
+## What it checks
+Ingress rules open to `0.0.0.0/0` on:
+- SSH (22), RDP (3389), HTTP (80), MySQL (3306)
 
-## Features
-* **Automated Auditing:** Retrieves and parses Security Group ingress rules across the AWS account.
-* **Risk Detection:** Identifies rules allowing unrestricted access to management ports.
-* **Security First:** Built with principles to ensure robust infrastructure baseline security.
+Port ranges and "all traffic" rules are taken into account.
 
-## Prerequisites
-* Python 3.x
-* AWS CLI installed and configured (`aws configure` with IAM credentials)
-* `boto3` library
+## Output
+Prints alerts to the console and writes `auditor_report.txt` with the
+total number of findings and one line per finding.
+
+## Requirements
+- Python 3.x and `boto3`
+- AWS credentials available through the standard boto3 credential chain
+  (environment variables, SSO, IAM role, or `aws configure`).
+  No secrets are stored in the code.
+- Minimum IAM permission (read-only): `ec2:DescribeSecurityGroups`
 
 ## Usage
-```bash
 python3 auditor.py
-```
+# enter the region when prompted, e.g. eu-west-1
+
+## Known limitations
+- Audits one region per run
+- IPv6 (`::/0`) is not checked yet
+- Reports the group name only (not the group ID)
+- Does not distinguish groups attached to resources from unused ones
+- Port 80 open to the world is reported although it is often intentional
+
+## Roadmap
+- IPv6 support, multi-region scan, group IDs in the report
+- Severity levels, JSON/CSV output, CLI arguments
+- Scheduled runs (Lambda + EventBridge) and alerts (SNS)
