@@ -22,7 +22,7 @@ total number of findings and one line per finding.
 
 ## Usage
 python3 auditor.py
-# enter the region when prompted, e.g. eu-west-1
+### Enter the region when prompted, e.g. eu-west-1
 
 ## Known limitations
 - Audits one region per run
