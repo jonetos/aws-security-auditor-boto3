@@ -1,3 +1,5 @@
 .venv/
 .vscode/
 auditor_report.txt
+auditor_report_before_fix_-1.txt
+auditor_report_baseline.txt
